@@ -128,6 +128,12 @@ export default function BoardPage() {
     () => viewerFrom(role, accountEmployeeId ?? actorId, employees),
     [role, accountEmployeeId, actorId, employees],
   );
+  // Scope "Pekerjaan Saya" harus mengikuti akun yang masuk. `actorId` hanya
+  // identitas pelaku audit yang dapat dipilih Admin, bukan identitas akun.
+  const accountViewer = useMemo(
+    () => viewerFrom(role, accountEmployeeId, employees),
+    [role, accountEmployeeId, employees],
+  );
   const defaultPicMainIds = useMemo(
     () =>
       viewer.accountType === 'EMPLOYEE' && viewer.level === 'STAFF' && viewer.employeeId
@@ -139,8 +145,8 @@ export default function BoardPage() {
 
   // "Pekerjaan Saya" = saringan murni dari data yang sama.
   const tasks = useMemo(
-    () => applyScope(allTasks, scope, viewer) as typeof allTasks,
-    [allTasks, scope, viewer],
+    () => applyScope(allTasks, scope, accountViewer) as typeof allTasks,
+    [allTasks, scope, accountViewer],
   );
   const quickCounts = useMemo(() => quickFilterCounts(tasks, steps, today), [tasks, steps, today]);
   const categories = categoriesQ.data ?? [];
