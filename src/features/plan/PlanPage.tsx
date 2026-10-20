@@ -75,16 +75,6 @@ type PresentationPic = {
   name: string;
 };
 
-const PRESENTATION_CATEGORIES = [
-  'Administrasi',
-  'Koordinasi',
-  'Verifikasi',
-  'Monitoring',
-  'Evaluasi',
-  'Pelaporan',
-  'Pengembangan',
-];
-
 const PRESENTATION_TEMPLATES = [
   {
     title: 'Koordinasi Persiapan Program Kerja',
@@ -210,11 +200,10 @@ function createPresentationActivities(pics: PresentationPic[]): ActivityPlanItem
       const templateIndex =
         (year + month) % PRESENTATION_TEMPLATES.length;
 
-      const template =
-        PRESENTATION_TEMPLATES[templateIndex];
+      const template = PRESENTATION_TEMPLATES[templateIndex]!;
 
       const pic =
-        pics[(year + month) % pics.length];
+        pics[(year + month) % pics.length] ?? { id: '', name: 'Tim PIP' };
 
       const day = safeDay(
         year,
@@ -261,13 +250,13 @@ function createPresentationActivities(pics: PresentationPic[]): ActivityPlanItem
         PRESENTATION_TEMPLATES[
         (templateIndex + 2) %
         PRESENTATION_TEMPLATES.length
-        ];
+        ]!;
 
       const secondPic =
         pics[
         (year + month + 2) %
         pics.length
-        ];
+        ] ?? { id: '', name: 'Tim PIP' };
 
       const secondDay = safeDay(
         year,

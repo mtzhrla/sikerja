@@ -43,6 +43,28 @@ const daysAgo = (n: number) => iso(now - n * DAY);
 const dateDaysAgo = (n: number) => isoDate(now - n * DAY);
 const dateDaysFromNow = (n: number) => isoDate(now + n * DAY);
 
+const CATEGORIES: Array<[string, string, string]> = [
+  ['cat-penyaluran', 'Penyaluran', '#2361e3'],
+  ['cat-sk', 'SK & Regulasi', '#7c3aed'],
+  ['cat-rekon', 'Rekonsiliasi', '#0d9488'],
+  ['cat-rapat', 'Rapat & Koordinasi', '#d97706'],
+  ['cat-data', 'Data & Sistem', '#0284c7'],
+  ['cat-layanan', 'Surat & Layanan', '#e11d48'],
+];
+const LABELS: Array<[string, string, string]> = [
+  ['lbl-pimpinan', 'Prioritas Pimpinan', '#b91c1c'],
+  ['lbl-termin1', 'Termin 1', '#1c4dc4'],
+  ['lbl-termin2', 'Termin 2', '#0d9488'],
+  ['lbl-termin3', 'Termin 3', '#7c3aed'],
+  ['lbl-lintas', 'Lintas Tim', '#d97706'],
+  ['lbl-eksternal', 'Menunggu Eksternal', '#64748b'],
+  ['lbl-rutin', 'Rutin', '#059669'],
+];
+const buildCategories = (): Category[] =>
+  CATEGORIES.map(([id, name, color], sortOrder) => ({ id, name, color, sortOrder, active: true }));
+const buildLabels = (): Label[] =>
+  LABELS.map(([id, name, color], sortOrder) => ({ id, name, color, sortOrder, active: true }));
+
 // ---------------------------------------------------------------------------
 // Pegawai — seed resmi 25 pegawai (Docs/09 §P). Tag board satu kata & unik.
 // ---------------------------------------------------------------------------

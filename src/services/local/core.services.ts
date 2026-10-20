@@ -1,4 +1,4 @@
-import { normalizeTeam } from '@/lib/org';
+﻿import { normalizeTeam } from '@/lib/org';
 import { uid } from '@/lib/utils';
 import { ConflictError, NotFoundError, ValidationError } from '@/services/errors';
 import type {
@@ -45,7 +45,7 @@ function validateEmployeeInput(input: Partial<EmployeeInput>): void {
   }
   if (input.initials !== undefined) {
     const ini = input.initials.trim();
-    if (!ini || ini.length > 3) throw new ValidationError('Inisial 1–3 karakter.');
+    if (!ini || ini.length > 3) throw new ValidationError('Inisial 1â€“3 karakter.');
   }
 }
 
@@ -278,59 +278,59 @@ export const localEmployees: EmployeeService = {
 // // Kategori & Label
 // // ---------------------------------------------------------------------------
 
-// function saveTaxonomyItem<T extends Category | Label>(
-//   collection: 'categories' | 'labels',
-//   items: T[],
-//   input: { id?: string; name: string; color: string; active?: boolean },
-//   entityType: 'CATEGORY' | 'LABEL',
-//   employeeId: string,
-// ): T {
-//   const name = input.name.trim();
-//   if (!name) throw new ValidationError('Nama wajib diisi.');
-//   if (name.length > 40) throw new ValidationError('Nama maksimal 40 karakter.');
-//   const duplicate = items.some(
-//     (i) => i.name.toLowerCase() === name.toLowerCase() && i.id !== input.id,
-//   );
-//   if (duplicate) throw new ValidationError(`"${name}" sudah ada.`);
+function saveTaxonomyItem<T extends Category | Label>(
+  collection: 'categories' | 'labels',
+  items: T[],
+  input: { id?: string; name: string; color: string; active?: boolean },
+  entityType: 'CATEGORY' | 'LABEL',
+  employeeId: string,
+): T {
+  const name = input.name.trim();
+  if (!name) throw new ValidationError('Nama wajib diisi.');
+  if (name.length > 40) throw new ValidationError('Nama maksimal 40 karakter.');
+  const duplicate = items.some(
+    (i) => i.name.toLowerCase() === name.toLowerCase() && i.id !== input.id,
+  );
+  if (duplicate) throw new ValidationError(`"${name}" sudah ada.`);
 
-//   let result: T;
-//   let next: T[];
-//   if (input.id) {
-//     const prev = items.find((i) => i.id === input.id);
-//     if (!prev) throw new NotFoundError('Data tidak ditemukan.');
-//     result = { ...prev, name, color: input.color, active: input.active ?? prev.active };
-//     next = items.map((i) => (i.id === input.id ? result : i));
-//     writeAudit({
-//       ...auditBase(employeeId),
-//       action: 'UPDATE',
-//       entityType,
-//       entityId: prev.id,
-//       entityLabel: name,
-//       before: { name: prev.name, color: prev.color, active: prev.active },
-//       after: { name, color: input.color, active: result.active },
-//     });
-//   } else {
-//     result = {
-//       id: uid(entityType === 'CATEGORY' ? 'cat' : 'lbl'),
-//       name,
-//       color: input.color,
-//       sortOrder: items.length,
-//       active: input.active ?? true,
-//     } as T;
-//     next = [...items, result];
-//     writeAudit({
-//       ...auditBase(employeeId),
-//       action: 'CREATE',
-//       entityType,
-//       entityId: result.id,
-//       entityLabel: name,
-//       after: { name, color: input.color },
-//     });
-//   }
-//   db.write(collection === 'categories' ? COL.categories : COL.labels, next);
-//   localBus.emit({ topic: collection });
-//   return result;
-// }
+  let result: T;
+  let next: T[];
+  if (input.id) {
+    const prev = items.find((i) => i.id === input.id);
+    if (!prev) throw new NotFoundError('Data tidak ditemukan.');
+    result = { ...prev, name, color: input.color, active: input.active ?? prev.active };
+    next = items.map((i) => (i.id === input.id ? result : i));
+    writeAudit({
+      ...auditBase(employeeId),
+      action: 'UPDATE',
+      entityType,
+      entityId: prev.id,
+      entityLabel: name,
+      before: { name: prev.name, color: prev.color, active: prev.active },
+      after: { name, color: input.color, active: result.active },
+    });
+  } else {
+    result = {
+      id: uid(entityType === 'CATEGORY' ? 'cat' : 'lbl'),
+      name,
+      color: input.color,
+      sortOrder: items.length,
+      active: input.active ?? true,
+    } as T;
+    next = [...items, result];
+    writeAudit({
+      ...auditBase(employeeId),
+      action: 'CREATE',
+      entityType,
+      entityId: result.id,
+      entityLabel: name,
+      after: { name, color: input.color },
+    });
+  }
+  db.write(collection === 'categories' ? COL.categories : COL.labels, next);
+  localBus.emit({ topic: collection });
+  return result;
+}
 
  export const localTaxonomy: TaxonomyService = {
    async listCategories(opts): Promise<Category[]> {
@@ -502,22 +502,22 @@ function validateSettingsPatch(patch: Partial<AppSettings>): void {
     patch.userSessionDays !== undefined &&
     (patch.userSessionDays < 1 || patch.userSessionDays > 730)
   ) {
-    throw new ValidationError('Durasi sesi User 1–730 hari.');
+    throw new ValidationError('Durasi sesi User 1â€“730 hari.');
   }
   if (patch.staleDays !== undefined && (patch.staleDays < 1 || patch.staleDays > 90)) {
-    throw new ValidationError('Ambang tidak diperbarui 1–90 hari.');
+    throw new ValidationError('Ambang tidak diperbarui 1â€“90 hari.');
   }
   if (
     patch.attachmentMaxMB !== undefined &&
     (patch.attachmentMaxMB < 1 || patch.attachmentMaxMB > 50)
   ) {
-    throw new ValidationError('Batas lampiran 1–50 MB.');
+    throw new ValidationError('Batas lampiran 1â€“50 MB.');
   }
   if (patch.attachmentAllowedExt !== undefined && patch.attachmentAllowedExt.length === 0) {
     throw new ValidationError('Minimal satu tipe file lampiran diizinkan.');
   }
   if (patch.logoDataUrl !== undefined && patch.logoDataUrl && patch.logoDataUrl.length > 300_000) {
-    throw new ValidationError('Ukuran logo terlalu besar (maks ±200 KB).');
+    throw new ValidationError('Ukuran logo terlalu besar (maks Â±200 KB).');
   }
 }
 
@@ -569,7 +569,7 @@ export const localSettings: SettingsService = {
     if (!auth) throw new NotFoundError('Penyimpanan autentikasi tidak ditemukan.');
     const hash = await hashPassword(newPassword);
     db.write(COL.auth, { ...auth, userPasswordHash: hash, updatedAt: nowISO() });
-    // Akun bersama lama kini berjenis DEMO (read-only) — password ikut diperbarui.
+    // Akun bersama lama kini berjenis DEMO (read-only) â€” password ikut diperbarui.
     db.write(
       COL.accounts,
       db.accounts().map((a) => (a.accountType === 'DEMO' ? { ...a, passwordHash: hash } : a)),
