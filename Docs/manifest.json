@@ -1,0 +1,29 @@
+{
+  "project": "Dashboard Pekerjaan PIP Puslapdik",
+  "version": "3.0.0",
+  "updated": "16 Juli 2026",
+  "build_mode": "from_scratch",
+  "ui_ux": "Claude recommendation",
+  "documents": [
+    "01-APP-FUNCTIONS.md",
+    "02-ROLES-ACCESS-AUDIT.md",
+    "03-DASHBOARD-FUNCTIONS.md",
+    "04-WORK-BOARD-FUNCTIONS.md",
+    "05-ADMIN-FUNCTIONS.md",
+    "06-DATA-REALTIME-SECURITY.md",
+    "07-BUILD-STEPS.md",
+    "08-ACCEPTANCE-CRITERIA.md",
+    "CLAUDE.md",
+    "MASTER-FUNCTIONAL-SPEC.md",
+    "README.md",
+    "RUN-CLAUDE.md",
+    "prompts/01-INITIALIZE-PROJECT.md",
+    "prompts/02-UIUX-FOUNDATION.md",
+    "prompts/03-LOGIN-ACCESS.md",
+    "prompts/04-DASHBOARD.md",
+    "prompts/05-WORK-BOARD.md",
+    "prompts/06-ADMIN.md",
+    "prompts/07-BACKEND-REALTIME.md",
+    "prompts/08-QA-DEPLOYMENT.md"
+  ]
+}

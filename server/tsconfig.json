@@ -1,0 +1,16 @@
+{
+  "//": "Typecheck khusus server Render (dijalankan via `npm run typecheck:server`). Terpisah dari tsconfig root agar build Vercel tidak berubah. Server dijalankan runtime lewat tsx.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["render-server.ts"]
+}

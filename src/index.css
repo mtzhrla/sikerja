@@ -1,0 +1,341 @@
+@import '@fontsource-variable/plus-jakarta-sans';
+@import 'tailwindcss';
+
+/*
+ * Varian "short": viewport lebar (≥ lg) tetapi pendek (≤ 900px), mis. laptop
+ * 1366×768 dan desktop 1440×900. Dipakai Dashboard untuk memadatkan kartu/tabel agar tetap satu
+ * layar tanpa scroll vertikal.
+ */
+@custom-variant short (@media (min-width: 64rem) and (max-height: 56.25rem));
+
+/*
+ * Varian "tall": viewport cukup tinggi (≥ 960px) — mis. TV/monitor 1920×1080.
+ * Dashboard hanya "dikunci" satu layar tanpa scroll pada layar setinggi ini;
+ * pada layar lebih pendek (1440×900, 1366×768) Dashboard mengalir natural dan
+ * boleh menggulir pendek agar chart & teks tetap besar dan terbaca.
+ */
+@custom-variant tall (@media (min-height: 60rem));
+
+/* ============================================================
+   Design tokens — Dashboard PIP Puslapdik
+   ============================================================ */
+@theme {
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * Breakpoint tambahan 1400px: memisahkan laptop 1366×768 (3 kolom) dari
+   * desktop 1440×900 (4 kolom) pada grid Daftar Pegawai. Breakpoint bernama —
+   * bukan `min-[1400px]` — agar urutannya benar terhadap `lg`/`2xl`.
+   */
+  --breakpoint-wide: 87.5rem;
+
+  /*
+   * Aksesibilitas (WCAG AA): teks sekunder aplikasi memakai slate-400/500.
+   * Kedua step dinaikkan satu tingkat dari bawaan Tailwind agar teks sekunder
+   * memenuhi kontras 4.5:1 di atas putih (slate-400) dan di atas latar
+   * slate-100/200 (slate-500).
+   */
+  --color-slate-400: #62748e;
+  --color-slate-500: #45556c;
+
+  /* Warna utama (biru pemerintahan, modern) */
+  --color-brand-50: #f0f6ff;
+  --color-brand-100: #e0edfe;
+  --color-brand-200: #bcd9fd;
+  --color-brand-300: #8dbdfa;
+  --color-brand-400: #5a9cf5;
+  --color-brand-500: #3579ee;
+  --color-brand-600: #2361e3;
+  --color-brand-700: #1c4dc4;
+  --color-brand-800: #1c419e;
+  --color-brand-900: #1c397d;
+  --color-brand-950: #14244d;
+
+  /* Semantik */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-info-50: #f0f9ff;
+  --color-info-100: #e0f2fe;
+  --color-info-500: #0ea5e9;
+  --color-info-600: #0284c7;
+  --color-info-700: #0369a1;
+
+  /* Aksen sekunder (violet/cyan/mint) untuk gradient terkontrol */
+  --color-accent-violet: #7c3aed;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-mint: #34d399;
+
+  /* Bayangan lembut untuk kartu */
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05), 0 4px 16px -4px rgb(15 23 42 / 0.08);
+  --shadow-pop: 0 4px 12px -2px rgb(15 23 42 / 0.12), 0 12px 32px -8px rgb(15 23 42 / 0.16);
+  --shadow-lift: 0 2px 4px rgb(15 23 42 / 0.06), 0 10px 24px -6px rgb(28 77 196 / 0.16);
+
+  --radius-card: 0.875rem;
+
+  /* Gradient siap pakai (background utama, tombol, nav aktif, icon container) */
+  --gradient-app: linear-gradient(160deg, #f7f9ff 0%, #eef3fd 45%, #eef7fb 100%);
+  --gradient-brand: linear-gradient(135deg, #2361e3 0%, #4f46e5 55%, #7c3aed 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #e0edfe 0%, #ede9fe 60%, #e0f7fa 100%);
+  --gradient-header: linear-gradient(120deg, #eef3fd 0%, #f3effd 55%, #e9f9f4 100%);
+}
+
+/* ============================================================
+   Dasar
+   ============================================================ */
+html {
+  font-family: var(--font-sans);
+  scrollbar-gutter: stable;
+  /*
+   * Dokumen tidak boleh menggulir horizontal — seluruh scroll horizontal
+   * terjadi di kontainer yang dirancang untuk itu (board kanban, tabel).
+   * Chromium menyatukan overflow scroll-container tertentu ke rentang gulir
+   * dokumen; hidden mencegah pengguna menggulir ke area kosong.
+   */
+  overflow-x: hidden;
+}
+
+/* Skala membesar untuk layar sangat besar (TV 1920×1080 dilihat dari jauh) */
+@media (min-width: 1880px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+body {
+  @apply text-slate-900 antialiased;
+  background: var(--gradient-app) fixed;
+  font-feature-settings: 'ss01';
+}
+
+/* Angka rata (tabular) untuk statistik & tabel */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus ring konsisten & jelas (aksesibilitas keyboard) */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+/* Scrollbar tipis untuk area scroll horizontal (board kanban) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.6) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.6);
+  border-radius: 999px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Hormati preferensi pengurangan gerakan */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Kelas utilitas animasi masuk yang halus */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.25s ease-out both;
+}
+
+/*
+ * Area teks bertinggi tetap: menjaga seluruh kartu dalam satu baris grid tetap
+ * sejajar walau panjang nama/jabatan berbeda. Satuan `em` mengikuti font-size
+ * elemen sendiri, sehingga tetap benar saat skala membesar di layar TV.
+ * Dipakai bersama `line-clamp-2` — bukan tinggi tetap, jadi teks tak terpotong
+ * secara tidak aman.
+ */
+.lines-2 {
+  min-height: 2.75em; /* 2 baris × leading-snug (1.375) */
+}
+.lines-1 {
+  min-height: 1.375em;
+}
+
+/* ============================================================
+   Micro-interactions (Docs/09 §F) — feedback hover/pressed 120–220ms
+   ============================================================ */
+
+/* Elemen interaktif umum: pressed mengecil ±0.97 lalu kembali */
+.pressable {
+  transition:
+    transform 140ms ease,
+    box-shadow 180ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+.pressable:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Kartu/tombol yang "terangkat" ringan saat hover */
+.liftable {
+  transition:
+    transform 180ms ease,
+    box-shadow 200ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+@media (hover: hover) {
+  .liftable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+.liftable:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ============================================================
+   Maskot login (SVG + CSS, tanpa asset eksternal)
+   ============================================================ */
+
+@keyframes mascot-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+.mascot-blink {
+  animation: mascot-blink 4.2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.mascot-char {
+  transition: transform 200ms ease;
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+}
+.mascot-delay-1 {
+  transition-delay: 30ms;
+}
+.mascot-delay-2 {
+  transition-delay: 60ms;
+}
+
+.mascot-lean {
+  transform: rotate(3deg) translateY(1px);
+}
+.mascot-lean-left {
+  transform: rotate(-3deg) translateY(1px);
+}
+.mascot-turn {
+  transform: translateX(-3px) rotate(-2deg);
+}
+
+/* Pupil mengikuti kursor — nilai px diset LoginPage lewat --gaze-x/--gaze-y */
+.mascot-pupils {
+  transform: translate(var(--gaze-x, 0px), var(--gaze-y, 0px));
+  transition: transform 140ms ease-out;
+  transform-box: fill-box;
+}
+
+/* Tangan menutup mata: default di bawah (tersembunyi di badan) */
+.mascot-hands {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    transform 190ms ease,
+    opacity 150ms ease;
+  transform-box: fill-box;
+}
+/* Bersiap: tangan naik setengah (password fokus, belum diketik) */
+.mascot-hands-half {
+  opacity: 1;
+  transform: translateY(15px);
+}
+.mascot-hands-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes mascot-hop {
+  0% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.mascot-hop {
+  animation: mascot-hop 380ms ease-out 1;
+}
+
+@keyframes mascot-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
+  80% {
+    transform: translateX(-1.5px);
+  }
+}
+.mascot-shake {
+  animation: mascot-shake 260ms ease-in-out 1;
+}
+
+.mascot-sparkles {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.mascot-sparkles-on {
+  opacity: 1;
+}
