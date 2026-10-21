@@ -126,7 +126,14 @@ const RUNNING_STEP_NAME = 'on progress';
  * ==================================================================== */
 
 function parseLocalDate(dateStr: string): Date {
-  return new Date(`${dateStr}T00:00:00`);
+  const dateOnly = dateStr.slice(0, 10);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  }
+
+  const parsed = new Date(dateStr);
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
 }
 
 function isSameDay(a: Date, b: Date): boolean {
@@ -674,7 +681,13 @@ function ScheduleSection({
 }
 
 /** Reminder tugas belum selesai dengan deadline H-5 — selalu dari seluruh data, tanpa filter. Ditampilkan sebagai banner horizontal penuh di atas dashboard. */
-function ReminderList({ tasks }: { tasks: ScheduleTask[] }) {
+function ReminderList({
+  tasks,
+  onSelectDate,
+}: {
+  tasks: ScheduleTask[];
+  onSelectDate: (date: Date) => void;
+}) {
   return (
     <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex shrink-0 items-center gap-2">
@@ -695,23 +708,30 @@ function ReminderList({ tasks }: { tasks: ScheduleTask[] }) {
             return (
               <li
                 key={t.id}
-                className="flex shrink-0 items-center gap-2 rounded-lg border border-warning-100 bg-warning-50/60 px-3 py-2"
+                className="shrink-0"
               >
-                <div className="min-w-0">
-                  <p className="max-w-[160px] truncate text-xs font-semibold text-slate-800">
-                    {t.title}
-                  </p>
-                  <p className="text-[11px] text-slate-500">
-                    Deadline{' '}
-                    {parseLocalDate(t.dueDate).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'short',
-                    })}
-                  </p>
-                </div>
-                <span className="shrink-0 rounded-full bg-warning-100 px-2 py-0.5 text-[10px] font-semibold text-warning-700">
-                  {left <= 0 ? 'Hari ini' : `H-${left}`}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => onSelectDate(parseLocalDate(t.dueDate))}
+                  aria-label={`${t.title}, deadline ${parseLocalDate(t.dueDate).toLocaleDateString('id-ID')}. Tampilkan tanggal di kalender.`}
+                  className="flex items-center gap-2 rounded-lg border border-warning-100 bg-warning-50/60 px-3 py-2 text-left transition hover:border-warning-300 hover:bg-warning-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning-400"
+                >
+                  <div className="min-w-0">
+                    <p className="max-w-[160px] truncate text-xs font-semibold text-slate-800">
+                      {t.title}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Deadline{' '}
+                      {parseLocalDate(t.dueDate).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                      })}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-warning-100 px-2 py-0.5 text-[10px] font-semibold text-warning-700">
+                    {left <= 0 ? 'Hari ini' : `H-${left}`}
+                  </span>
+                </button>
               </li>
             );
           })}
@@ -799,7 +819,9 @@ export default function DashboardPage() {
         return {
           id: t.id,
           title: t.title,
-          dueDate: t.dueDate,
+          // Normalisasi juga timestamp lama ke tanggal lokal yang sama
+          // dengan yang ditampilkan di Kalender dan Reminder.
+          dueDate: todayISO(parseLocalDate(t.dueDate)),
           stepName: step?.name ?? '—',
           isDone: step?.kind === 'DONE',
         };
@@ -973,7 +995,10 @@ export default function DashboardPage() {
         <div className="grid gap-4 lg:grid-cols-12 lg:items-stretch">
           {/* Panel KIRI — Reminder di paling atas, lalu KPI & chart; terpengaruh filter (kecuali Reminder) */}
           <div className="flex h-full flex-col gap-4 lg:col-span-8">
-            <ReminderList tasks={reminders} />
+            <ReminderList
+              tasks={reminders}
+              onSelectDate={handleSelectCalendarDate}
+            />
             <DistributionKpis />
             <div className="grid flex-1 gap-4 sm:grid-cols-2">
               <Card className="flex h-full flex-col overflow-hidden">
