@@ -28,7 +28,7 @@ import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { arrayMove, cn } from '@/lib/utils';
 import { todayISO } from '@/lib/format';
-import { canCreateTask, canDispose, denyReason, isAssignedToViewer, viewerFrom } from '@/lib/permissions';
+import { canCreateTask, canDispose, isAssignedToViewer, viewerFrom } from '@/lib/permissions';
 import {
   DropdownContent,
   DropdownItem,
@@ -474,31 +474,31 @@ export default function BoardPage() {
               )}
             </PopoverContent>
           </Popover>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9"
-            disabled={!canCreateTask(viewer)}
-            title={canCreateTask(viewer) ? undefined : denyReason(viewer)}
-            onClick={() => setTaskImportOpen(true)}
-          >
-            <FileSpreadsheet className="size-4" aria-hidden />
-            Impor Excel
-          </Button>
-          <Button
-            size="sm"
-            className="h-9"
-            disabled={!canCreateTask(viewer)}
-            title={canCreateTask(viewer) ? undefined : denyReason(viewer)}
-            onClick={() => {
-              setTaskDialogTask(null);
-              setTaskDialogStepId(undefined);
-              setTaskDialogOpen(true);
-            }}
-          >
-            <Plus className="size-4" aria-hidden />
-            Pekerjaan baru
-          </Button>
+          {!isEmployeeAccount && canCreateTask(viewer) && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9"
+                onClick={() => setTaskImportOpen(true)}
+              >
+                <FileSpreadsheet className="size-4" aria-hidden />
+                Impor Excel
+              </Button>
+              <Button
+                size="sm"
+                className="h-9"
+                onClick={() => {
+                  setTaskDialogTask(null);
+                  setTaskDialogStepId(undefined);
+                  setTaskDialogOpen(true);
+                }}
+              >
+                <Plus className="size-4" aria-hidden />
+                Pekerjaan baru
+              </Button>
+            </>
+          )}
           {/* Menu ⋯ — arsip & aksi sekunder tanpa menambah tab utama */}
           <DropdownRoot>
             <DropdownTrigger asChild>
