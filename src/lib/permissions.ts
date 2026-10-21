@@ -128,6 +128,16 @@ export function isMyTask(v: Viewer, task: Task): boolean {
   return taskParticipantIds(task).includes(v.employeeId);
 }
 
+/** Pegawai hanya melihat pekerjaan yang menugaskan dirinya sebagai PIC/anggota. */
+export function isAssignedToViewer(v: Viewer, task: Task): boolean {
+  if (!v.employeeId) return false;
+  return (
+    task.picMainId === v.employeeId ||
+    task.picMainIds.includes(v.employeeId) ||
+    task.picIds.includes(v.employeeId)
+  );
+}
+
 /** Pesan singkat mengapa sebuah aksi tidak tersedia (untuk tooltip/toast). */
 export function denyReason(v: Viewer): string {
   if (isDemo(v)) return 'Akun demo hanya dapat melihat data (read-only).';

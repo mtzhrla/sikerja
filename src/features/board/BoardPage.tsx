@@ -28,7 +28,7 @@ import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { arrayMove, cn } from '@/lib/utils';
 import { todayISO } from '@/lib/format';
-import { canCreateTask, canDispose, denyReason, viewerFrom } from '@/lib/permissions';
+import { canCreateTask, canDispose, denyReason, isAssignedToViewer, viewerFrom } from '@/lib/permissions';
 import {
   DropdownContent,
   DropdownItem,
@@ -144,10 +144,11 @@ export default function BoardPage() {
   const today = todayISO();
 
   // "Pekerjaan Saya" = saringan murni dari data yang sama.
-  const tasks = useMemo(
-    () => applyScope(allTasks, scope, accountViewer) as typeof allTasks,
-    [allTasks, scope, accountViewer],
-  );
+  const isEmployeeAccount = role === 'EMPLOYEE';
+  const tasks = useMemo(() => {
+    if (isEmployeeAccount) return allTasks.filter((task) => isAssignedToViewer(accountViewer, task));
+    return applyScope(allTasks, scope, accountViewer) as typeof allTasks;
+  }, [allTasks, scope, accountViewer, isEmployeeAccount]);
   const quickCounts = useMemo(() => quickFilterCounts(tasks, steps, today), [tasks, steps, today]);
   const categories = categoriesQ.data ?? [];
   const labels = labelsQ.data ?? [];
@@ -339,7 +340,11 @@ export default function BoardPage() {
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {/* Dua pilihan tampilan dalam halaman — bukan board/tabel terpisah */}
-          <div
+          {isEmployeeAccount ? (
+            <span className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+              Pekerjaan Saya
+            </span>
+          ) : <div
             role="group"
             aria-label="Cakupan pekerjaan"
             className="inline-flex items-center gap-1 rounded-xl bg-slate-200/60 p-1"
@@ -365,7 +370,7 @@ export default function BoardPage() {
                 {opt.label}
               </button>
             ))}
-          </div>
+          </div>}
           <div className="relative">
             <Search
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400"
