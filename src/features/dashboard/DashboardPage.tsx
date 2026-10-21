@@ -29,7 +29,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useActivities, useAppSettings, useSteps, useTasks } from '@/hooks/queries';
 import type { ActivityPlanItem } from '@/services/types';
 import { formatRange, occursOn, STATUS_META, todayISO } from '@/features/plan/lib';
-import { taskCountsByDueMonth } from './lib';
+import { taskCountsByStartMonth } from './lib';
 
 /* ========================================================================
  * TIPE DATA
@@ -736,7 +736,7 @@ function ReminderList({ tasks }: { tasks: ScheduleTask[] }) {
  * 1. Empat kartu atas menampilkan alokasi, SK Pemberian, dan progres
  *    siswa/dana berdasarkan snapshot penyaluran aktif untuk tahun terpilih.
  * 2. Donut Project Progress tetap menghitung komposisi pekerjaan berdasarkan
- *    step Board; grafik bulanan memakai tanggal tenggat pekerjaan.
+ *    step Board; grafik bulanan memakai tanggal mulai pekerjaan.
  * 3. Kalender menandai tenggat pekerjaan dan rentang Rencana Kegiatan;
  *    Jadwal menampilkan keduanya dalam dua bagian terpisah.
  * 4. Reminder tetap menampilkan tugas yang belum selesai dengan tenggat H-5.
@@ -808,7 +808,7 @@ export default function DashboardPage() {
 
   // Grafik menampilkan satu bulan jika filter bulan dipilih, atau distribusi
   // setahun penuh jika Semua Bulan dipilih.
-  const monthlyCounts = useMemo(() => taskCountsByDueMonth(tasks, year), [tasks, year]);
+  const monthlyCounts = useMemo(() => taskCountsByStartMonth(tasks, year), [tasks, year]);
 
   // ---------- Kalender dan jadwal mengikuti filter; reminder tetap global ----------
   const [viewDate, setViewDate] = useState(() => new Date());
@@ -987,8 +987,8 @@ export default function DashboardPage() {
                   title="Jumlah Task per Bulan"
                   description={
                     monthFilter === ''
-                      ? `Berdasarkan tanggal berakhirnya pekerjaan · ${year}`
-                      : `Tenggat pekerjaan pada ${MONTH_OPTIONS[Number(monthFilter) + 1]?.label} ${year}`
+                      ? `Berdasarkan tanggal mulai pekerjaan · ${year}`
+                      : `Pekerjaan dimulai pada ${MONTH_OPTIONS[Number(monthFilter) + 1]?.label} ${year}`
                   }
                 />
                 <div className="min-h-0 flex-1 p-4 pt-1">

@@ -6,7 +6,7 @@ import {
   isFocusToday,
   needsFollowUpIds,
   skStats,
-  taskCountsByDueMonth,
+  taskCountsByStartMonth,
   totalsFromRows,
   trendSeries,
   workStats,
@@ -79,35 +79,35 @@ const kinds = new Map<string, 'NORMAL' | 'BLOCKED' | 'DONE'>([
 const TODAY = '2026-07-16';
 const NOW = Date.parse('2026-07-16T08:00:00.000Z');
 
-describe('taskCountsByDueMonth', () => {
-  it('mengikuti jumlah pekerjaan berdasarkan tanggal tenggatnya', () => {
+describe('taskCountsByStartMonth', () => {
+  it('mengikuti jumlah pekerjaan berdasarkan tanggal mulainya', () => {
     const tasks = [
-      makeTask({ id: 'jan-1', dueDate: '2026-01-02' }),
-      makeTask({ id: 'jan-2', dueDate: '2026-01-18' }),
-      makeTask({ id: 'apr', dueDate: '2026-04-07' }),
-      makeTask({ id: 'nov', dueDate: '2026-11-02' }),
-      makeTask({ id: 'no-due', dueDate: null }),
+      makeTask({ id: 'jan-1', startDate: '2026-01-02' }),
+      makeTask({ id: 'jan-2', startDate: '2026-01-18' }),
+      makeTask({ id: 'apr', startDate: '2026-04-07' }),
+      makeTask({ id: 'nov', startDate: '2026-11-02' }),
+      makeTask({ id: 'no-start', startDate: null }),
     ];
 
-    expect(taskCountsByDueMonth(tasks, 2026)).toEqual([2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0]);
-    expect(taskCountsByDueMonth(tasks.filter((task) => task.id !== 'nov'), 2026)).toEqual([
+    expect(taskCountsByStartMonth(tasks, 2026)).toEqual([2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0]);
+    expect(taskCountsByStartMonth(tasks.filter((task) => task.id !== 'nov'), 2026)).toEqual([
       2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
   });
 
-  it('mengabaikan tenggat di luar tahun terpilih dan tanggal tidak valid', () => {
+  it('mengabaikan tanggal mulai di luar tahun terpilih dan tanggal tidak valid', () => {
     const tasks = [
-      makeTask({ id: 'jan', dueDate: '2025-01-02' }),
-      makeTask({ id: 'oct', dueDate: '2025-10-20' }),
-      makeTask({ id: 'other-year', dueDate: '2026-04-02' }),
-      makeTask({ id: 'invalid', dueDate: '2025-02-31' }),
+      makeTask({ id: 'jan', startDate: '2025-01-02' }),
+      makeTask({ id: 'oct', startDate: '2025-10-20' }),
+      makeTask({ id: 'other-year', startDate: '2026-04-02' }),
+      makeTask({ id: 'invalid', startDate: '2025-02-31' }),
     ];
 
-    expect(taskCountsByDueMonth(tasks, 2025)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]);
+    expect(taskCountsByStartMonth(tasks, 2025)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]);
   });
 
   it('mengembalikan nol pada semua bulan jika belum ada pekerjaan', () => {
-    expect(taskCountsByDueMonth([], 2026)).toEqual(Array.from({ length: 12 }, () => 0));
+    expect(taskCountsByStartMonth([], 2026)).toEqual(Array.from({ length: 12 }, () => 0));
   });
 });
 
