@@ -128,11 +128,11 @@ export default function BoardPage() {
     () => viewerFrom(role, accountEmployeeId ?? actorId, employees),
     [role, accountEmployeeId, actorId, employees],
   );
-  // Scope "Pekerjaan Saya" harus mengikuti akun yang masuk. `actorId` hanya
-  // identitas pelaku audit yang dapat dipilih Admin, bukan identitas akun.
+  // Akun pegawai memakai profil pegawai yang terhubung. Akun Admin memakai
+  // pegawai pelaku terpilih saat membuka cakupan "Pekerjaan Saya".
   const accountViewer = useMemo(
-    () => viewerFrom(role, accountEmployeeId, employees),
-    [role, accountEmployeeId, employees],
+    () => viewerFrom(role, accountEmployeeId ?? (role === 'ADMIN' ? actorId : null), employees),
+    [role, accountEmployeeId, actorId, employees],
   );
   const defaultPicMainIds = useMemo(
     () =>
@@ -146,9 +146,10 @@ export default function BoardPage() {
   // "Pekerjaan Saya" = saringan murni dari data yang sama.
   const isEmployeeAccount = role === 'EMPLOYEE';
   const tasks = useMemo(() => {
-    if (isEmployeeAccount) return allTasks.filter((task) => isAssignedToViewer(accountViewer, task));
+    const assignedOnly = isEmployeeAccount || (role === 'ADMIN' && scope === 'mine');
+    if (assignedOnly) return allTasks.filter((task) => isAssignedToViewer(accountViewer, task));
     return applyScope(allTasks, scope, accountViewer) as typeof allTasks;
-  }, [allTasks, scope, accountViewer, isEmployeeAccount]);
+  }, [allTasks, scope, accountViewer, isEmployeeAccount, role]);
   const quickCounts = useMemo(() => quickFilterCounts(tasks, steps, today), [tasks, steps, today]);
   const categories = categoriesQ.data ?? [];
   const labels = labelsQ.data ?? [];
