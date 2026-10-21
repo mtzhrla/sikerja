@@ -138,7 +138,14 @@ export default function App() {
                         </RequireAdmin>
                       }
                     />
-                    <Route path={`${ROUTES.admin}/*`} element={<AdminPage />} />
+                    <Route
+                      path={`${ROUTES.admin}/*`}
+                      element={
+                        <RequireAdmin>
+                          <AdminPage />
+                        </RequireAdmin>
+                      }
+                    />
                   </Route>
                   {UiGalleryPage && <Route path="/dev/ui" element={<UiGalleryPage />} />}
                   <Route path="*" element={<NotFoundPage />} />

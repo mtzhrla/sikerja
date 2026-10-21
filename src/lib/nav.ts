@@ -31,7 +31,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: ROUTES.pekerjaan, label: 'Pekerjaan', icon: SquareKanban, roles: SEMUA },
   { to: ROUTES.rencana, label: 'Rencana Kegiatan', icon: CalendarRange, roles: SEMUA },
   { to: ROUTES.pegawai, label: 'Daftar Pegawai', icon: Users, roles: SEMUA },
-  { to: ROUTES.admin, label: 'Admin', icon: ShieldCheck, roles: SEMUA },
+  { to: ROUTES.admin, label: 'Admin', icon: ShieldCheck, roles: ['ADMIN'] },
 ];
 
 export function navItemsForRole(role: AccountType | null): NavItem[] {
