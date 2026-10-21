@@ -31,39 +31,14 @@ export interface DistributionTotals {
 
 export type JenjangFilter = Jenjang | 'ALL';
 
-export const DASHBOARD_TASK_MONTH_BASELINE = [2, 3, 6, 7, 4, 2, 1, 5, 8, 4, 2, 1] as const;
-const DASHBOARD_TASK_BASELINE_COUNT = DASHBOARD_TASK_MONTH_BASELINE.reduce(
-  (total, count) => total + count,
-  0,
-);
-const DASHBOARD_TASK_BASELINE_YEAR = 2026;
-
 /**
- * Menampilkan distribusi awal pekerjaan sesuai rekap Dashboard 2026.
- * Pekerjaan baru di luar 45 data awal menambah hitungan bulan dibuatnya.
- * Tahun lain selalu dihitung seluruhnya dari tanggal dibuat.
+ * Menghitung pekerjaan aktif berdasarkan bulan dibuatnya dari data Board.
+ * Tanpa angka contoh agar jumlah langsung mengikuti penambahan/penghapusan.
  */
 export function taskCountsByCreatedMonth(
   tasks: readonly Pick<Task, 'createdAt'>[],
   year: number,
 ): number[] {
-  if (year === DASHBOARD_TASK_BASELINE_YEAR) {
-    const addedTasks = tasks
-      .map((task) => ({ task, date: new Date(task.createdAt) }))
-      .filter(({ date }) => !Number.isNaN(date.getTime()) && date.getFullYear() === year)
-      .sort(
-        (left, right) =>
-          left.date.getTime() - right.date.getTime() ||
-          left.task.createdAt.localeCompare(right.task.createdAt),
-      )
-      .slice(DASHBOARD_TASK_BASELINE_COUNT);
-    const counts: number[] = [...DASHBOARD_TASK_MONTH_BASELINE];
-    for (const { date } of addedTasks) {
-      counts[date.getMonth()] = (counts[date.getMonth()] ?? 0) + 1;
-    }
-    return counts;
-  }
-
   const counts = Array.from({ length: 12 }, () => 0);
   for (const task of tasks) {
     const createdAt = new Date(task.createdAt);

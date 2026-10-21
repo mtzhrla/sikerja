@@ -3,7 +3,6 @@ import type { DistributionRow, Task, TaskComment } from '@/services/types';
 import {
   attentionReasons,
   attentionScore,
-  DASHBOARD_TASK_MONTH_BASELINE,
   isFocusToday,
   needsFollowUpIds,
   skStats,
@@ -81,25 +80,17 @@ const TODAY = '2026-07-16';
 const NOW = Date.parse('2026-07-16T08:00:00.000Z');
 
 describe('taskCountsByCreatedMonth', () => {
-  it('menampilkan angka acuan 2026 dan menambah pekerjaan baru pada bulan dibuatnya', () => {
-    const baselineTasks = Array.from({ length: 45 }, (_, index) =>
-      makeTask({
-        id: `baseline-${index}`,
-        createdAt: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
-      }),
-    );
-    const newTask = makeTask({
-      id: 'new-task',
-      createdAt: '2026-11-02T10:00:00.000Z',
-      startDate: '2026-01-01',
-      dueDate: '2026-01-15',
-    });
+  it('mengikuti jumlah pekerjaan tersimpan pada bulan dibuatnya', () => {
+    const tasks = [
+      makeTask({ id: 'jan-1', createdAt: '2026-01-02T10:00:00.000Z' }),
+      makeTask({ id: 'jan-2', createdAt: '2026-01-18T10:00:00.000Z' }),
+      makeTask({ id: 'apr', createdAt: '2026-04-07T10:00:00.000Z' }),
+      makeTask({ id: 'nov', createdAt: '2026-11-02T10:00:00.000Z' }),
+    ];
 
-    expect(taskCountsByCreatedMonth(baselineTasks, 2026)).toEqual([
-      ...DASHBOARD_TASK_MONTH_BASELINE,
-    ]);
-    expect(taskCountsByCreatedMonth([...baselineTasks, newTask], 2026)).toEqual([
-      2, 3, 6, 7, 4, 2, 1, 5, 8, 4, 3, 1,
+    expect(taskCountsByCreatedMonth(tasks, 2026)).toEqual([2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0]);
+    expect(taskCountsByCreatedMonth(tasks.filter((task) => task.id !== 'nov'), 2026)).toEqual([
+      2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
   });
 
@@ -114,8 +105,8 @@ describe('taskCountsByCreatedMonth', () => {
     expect(taskCountsByCreatedMonth(tasks, 2025)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]);
   });
 
-  it('tetap menampilkan angka acuan meskipun belum ada pekerjaan tersimpan', () => {
-    expect(taskCountsByCreatedMonth([], 2026)).toEqual([...DASHBOARD_TASK_MONTH_BASELINE]);
+  it('mengembalikan nol pada semua bulan jika belum ada pekerjaan', () => {
+    expect(taskCountsByCreatedMonth([], 2026)).toEqual(Array.from({ length: 12 }, () => 0));
   });
 });
 

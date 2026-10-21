@@ -987,8 +987,8 @@ export default function DashboardPage() {
                   title="Jumlah Task per Bulan"
                   description={
                     monthFilter === ''
-                      ? `Sepanjang tahun ${year}`
-                      : `${MONTH_OPTIONS[Number(monthFilter) + 1]?.label} ${year}`
+                      ? `Pekerjaan dibuat sepanjang tahun ${year}`
+                      : `Pekerjaan dibuat pada ${MONTH_OPTIONS[Number(monthFilter) + 1]?.label} ${year}`
                   }
                 />
                 <div className="min-h-0 flex-1 p-4 pt-1">
