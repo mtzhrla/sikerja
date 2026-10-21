@@ -32,18 +32,24 @@ export interface DistributionTotals {
 export type JenjangFilter = Jenjang | 'ALL';
 
 /**
- * Menghitung pekerjaan aktif berdasarkan bulan dibuatnya dari data Board.
- * Tanpa angka contoh agar jumlah langsung mengikuti penambahan/penghapusan.
+ * Menghitung pekerjaan aktif berdasarkan tanggal tenggatnya dari data Board.
+ * Tanpa angka contoh agar jumlah mengikuti isi pekerjaan setiap bulan.
  */
-export function taskCountsByCreatedMonth(
-  tasks: readonly Pick<Task, 'createdAt'>[],
+export function taskCountsByDueMonth(
+  tasks: readonly Pick<Task, 'dueDate'>[],
   year: number,
 ): number[] {
   const counts = Array.from({ length: 12 }, () => 0);
   for (const task of tasks) {
-    const createdAt = new Date(task.createdAt);
-    if (Number.isNaN(createdAt.getTime()) || createdAt.getFullYear() !== year) continue;
-    counts[createdAt.getMonth()] = (counts[createdAt.getMonth()] ?? 0) + 1;
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(task.dueDate ?? '');
+    if (!match) continue;
+    const taskYear = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (taskYear !== year || month < 1 || month > 12 || day < 1 || day > 31) continue;
+    const validDate = new Date(Date.UTC(taskYear, month - 1, day));
+    if (validDate.getUTCMonth() !== month - 1 || validDate.getUTCDate() !== day) continue;
+    counts[month - 1] = (counts[month - 1] ?? 0) + 1;
   }
   return counts;
 }
