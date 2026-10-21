@@ -26,7 +26,9 @@ import { Card, CardHeader } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSessionStore } from '@/features/auth/session-store';
 import { useActivities, useAppSettings, useSteps, useTasks } from '@/hooks/queries';
+import { isAssignedToViewer } from '@/lib/permissions';
 import type { ActivityPlanItem } from '@/services/types';
 import { formatRange, occursOn, STATUS_META, todayISO } from '@/features/plan/lib';
 import { taskCountsByStartMonth } from './lib';
@@ -778,6 +780,7 @@ export default function DashboardPage() {
   const settingsQ = useAppSettings();
   const tasksQ = useTasks();
   const stepsQ = useSteps();
+  const { role, accountEmployeeId } = useSessionStore();
 
   const [yearFilter, setYearFilter] = useState<number | null>(null);
   const [monthFilter, setMonthFilter] = useState<string>('');
@@ -791,7 +794,17 @@ export default function DashboardPage() {
     return [current - 2, current - 1, current, current + 1];
   }, []);
 
-  const tasks = useMemo(() => tasksQ.data ?? [], [tasksQ.data]);
+  const tasks = useMemo(() => {
+    const allTasks = tasksQ.data ?? [];
+    if (role === 'EMPLOYEE') {
+      if (!accountEmployeeId) return [];
+      const viewer = { accountType: role, employeeId: accountEmployeeId, level: null };
+      return allTasks.filter((task) => isAssignedToViewer(viewer, task));
+    }
+    // Tunggu identitas sesi agar akun pegawai tidak sempat melihat agregat global.
+    if (role === null) return [];
+    return allTasks;
+  }, [tasksQ.data, role, accountEmployeeId]);
   const steps = useMemo(() => (stepsQ.data ?? []).filter((s) => !s.deletedAt), [stepsQ.data]);
   const stepById = useMemo(() => new Map(steps.map((s) => [s.id, s])), [steps]);
 
